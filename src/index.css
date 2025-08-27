@@ -8,35 +8,65 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Gaming/Streaming Theme Colors */
+    --background: 240 10% 8%;
+    --foreground: 300 20% 95%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card: 240 8% 12%;
+    --card-foreground: 300 20% 95%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover: 240 8% 12%;
+    --popover-foreground: 300 20% 95%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* Twitch-inspired purple with neon accent */
+    --primary: 270 95% 65%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 270 95% 75%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* Warm secondary for donations/positive elements */
+    --secondary: 45 100% 60%;
+    --secondary-foreground: 240 10% 8%;
+    --secondary-glow: 45 100% 70%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 240 8% 20%;
+    --muted-foreground: 300 10% 70%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    /* Neon green for success/likes */
+    --accent: 120 100% 50%;
+    --accent-foreground: 240 10% 8%;
+    --accent-glow: 120 100% 60%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    /* Red for negative elements */
+    --destructive: 0 100% 55%;
+    --destructive-foreground: 0 0% 100%;
+    --destructive-glow: 0 100% 65%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 240 8% 20%;
+    --input: 240 8% 16%;
+    --ring: 270 95% 65%;
 
-    --radius: 0.5rem;
+    /* Game-specific colors */
+    --like: 350 100% 65%;
+    --donate: 45 100% 60%;
+    --subscribe: 200 100% 60%;
+    --verify: 45 100% 50%;
+    --dislike: 0 100% 55%;
+    --hate: 15 100% 50%;
+    --ban: 280 30% 40%;
+
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)));
+    --gradient-secondary: linear-gradient(135deg, hsl(var(--secondary)), hsl(var(--secondary-glow)));
+    --gradient-accent: linear-gradient(135deg, hsl(var(--accent)), hsl(var(--accent-glow)));
+    --gradient-gaming: linear-gradient(135deg, hsl(270 95% 65%), hsl(320 95% 65%), hsl(45 100% 60%));
+    --gradient-neon: linear-gradient(90deg, hsl(270 95% 65%), hsl(200 100% 60%), hsl(120 100% 50%));
+
+    /* Shadows and glows */
+    --shadow-glow: 0 0 20px hsl(var(--primary) / 0.5);
+    --shadow-neon: 0 0 30px hsl(var(--accent) / 0.4);
+    --shadow-soft: 0 10px 30px -10px hsl(240 10% 8% / 0.8);
+
+    --radius: 0.75rem;
 
     --sidebar-background: 0 0% 98%;
 
@@ -100,6 +130,78 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans antialiased;
+    font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+  }
+}
+
+@layer components {
+  /* Game UI Components */
+  .game-button {
+    @apply relative px-6 py-3 rounded-xl font-bold text-lg
+           bg-gradient-primary text-primary-foreground
+           shadow-glow transition-all duration-300
+           hover:scale-105 hover:shadow-neon
+           active:scale-95;
+  }
+  
+  .game-button-secondary {
+    @apply relative px-4 py-2 rounded-lg font-semibold
+           bg-gradient-secondary text-secondary-foreground
+           shadow-soft transition-all duration-300
+           hover:scale-105 hover:brightness-110
+           active:scale-95;
+  }
+
+  .game-counter {
+    @apply bg-card/80 backdrop-blur-sm border border-border/50
+           rounded-lg px-4 py-2 font-bold text-xl
+           shadow-soft;
+  }
+
+  .game-item {
+    @apply w-12 h-12 rounded-full flex items-center justify-center
+           text-2xl font-bold shadow-lg transition-all duration-300
+           hover:scale-110 animate-float;
+  }
+
+  .game-item-positive {
+    @apply game-item bg-gradient-accent text-accent-foreground
+           shadow-neon;
+  }
+
+  .game-item-negative {
+    @apply game-item bg-gradient-destructive text-destructive-foreground
+           shadow-[0_0_20px_hsl(var(--destructive)/0.5)];
+  }
+
+  .hype-bar {
+    @apply w-full h-4 bg-muted rounded-full overflow-hidden
+           border-2 border-accent/30 shadow-inner;
+  }
+
+  .hype-bar-fill {
+    @apply h-full bg-gradient-accent transition-all duration-500
+           shadow-neon;
+  }
+
+  .capybara-idle {
+    @apply animate-bounce-gentle;
+  }
+
+  .streaming-bg {
+    @apply bg-gradient-to-br from-background via-card to-background
+           relative overflow-hidden;
+  }
+
+  .streaming-bg::before {
+    content: '';
+    @apply absolute inset-0 opacity-20
+           bg-gradient-neon animate-pulse;
+  }
+
+  .neon-text {
+    @apply text-transparent bg-clip-text bg-gradient-neon font-bold
+           drop-shadow-[0_0_10px_hsl(var(--primary)/0.5)];
   }
 }

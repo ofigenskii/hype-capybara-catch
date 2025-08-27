@@ -18,11 +18,16 @@ const buttonVariants = cva(
           "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
+        // Game-specific variants
+        gaming: "bg-gradient-primary text-primary-foreground shadow-glow hover:shadow-neon hover:scale-105 active:scale-95 transition-all duration-300",
+        "gaming-secondary": "bg-gradient-secondary text-secondary-foreground shadow-soft hover:brightness-110 hover:scale-105 active:scale-95 transition-all duration-300",
+        neon: "bg-gradient-accent text-accent-foreground shadow-neon hover:shadow-[0_0_40px_hsl(var(--accent)/0.6)] hover:scale-105 active:scale-95 transition-all duration-300",
       },
       size: {
         default: "h-10 px-4 py-2",
         sm: "h-9 rounded-md px-3",
         lg: "h-11 rounded-md px-8",
+        xl: "h-14 rounded-xl px-12 text-lg font-bold",
         icon: "h-10 w-10",
       },
     },
