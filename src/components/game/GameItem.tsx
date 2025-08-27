@@ -6,16 +6,16 @@ interface GameItemProps {
 }
 
 const ITEM_CONFIGS = {
-  // Positive items
-  like: { emoji: '❤️', bgClass: 'bg-gradient-to-br from-game-like to-pink-400', positive: true },
-  donate: { emoji: '💰', bgClass: 'bg-gradient-to-br from-game-donate to-yellow-400', positive: true },
-  subscribe: { emoji: '👤+', bgClass: 'bg-gradient-to-br from-game-subscribe to-blue-400', positive: true },
-  verify: { emoji: '✓', bgClass: 'bg-gradient-to-br from-game-verify to-amber-400', positive: true },
+  // Positive items - яркие зеленые/синие с белым контуром
+  like: { emoji: '❤️', bgClass: 'bg-green-500 border-4 border-white shadow-[0_0_20px_rgb(34,197,94)]', positive: true },
+  donate: { emoji: '💰', bgClass: 'bg-yellow-500 border-4 border-white shadow-[0_0_20px_rgb(234,179,8)]', positive: true },
+  subscribe: { emoji: '👤+', bgClass: 'bg-blue-500 border-4 border-white shadow-[0_0_20px_rgb(59,130,246)]', positive: true },
+  verify: { emoji: '✓', bgClass: 'bg-emerald-500 border-4 border-white shadow-[0_0_20px_rgb(16,185,129)]', positive: true },
   
-  // Negative items
-  dislike: { emoji: '👎', bgClass: 'bg-gradient-to-br from-game-dislike to-red-600', positive: false },
-  hate: { emoji: '😠', bgClass: 'bg-gradient-to-br from-game-hate to-orange-600', positive: false },
-  ban: { emoji: '🔨', bgClass: 'bg-gradient-to-br from-game-ban to-purple-600', positive: false },
+  // Negative items - яркие красные/темные с красным контуром
+  dislike: { emoji: '👎', bgClass: 'bg-red-600 border-4 border-red-300 shadow-[0_0_20px_rgb(220,38,38)]', positive: false },
+  hate: { emoji: '😠', bgClass: 'bg-orange-600 border-4 border-red-300 shadow-[0_0_20px_rgb(234,88,12)]', positive: false },
+  ban: { emoji: '🔨', bgClass: 'bg-purple-800 border-4 border-red-300 shadow-[0_0_20px_rgb(107,33,168)]', positive: false },
 } as const;
 
 export const GameItem = ({ type, className }: GameItemProps) => {
@@ -24,13 +24,12 @@ export const GameItem = ({ type, className }: GameItemProps) => {
   return (
     <div
       className={cn(
-        "game-item",
+        "w-16 h-16 rounded-full flex items-center justify-center text-3xl font-bold transition-all duration-300 hover:scale-110",
         config.bgClass,
-        config.positive ? "shadow-neon" : "shadow-[0_0_20px_hsl(var(--destructive)/0.5)]",
         className
       )}
     >
-      <span className="text-2xl">{config.emoji}</span>
+      <span className="text-white drop-shadow-lg">{config.emoji}</span>
     </div>
   );
 };
