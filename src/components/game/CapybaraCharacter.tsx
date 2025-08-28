@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
 import capybaraImage from "@/assets/capybara-streamer.jpg";
+import capybaraActive from "@/assets/capybara-active.png";
 
 interface CapybaraCharacterProps {
   mood: 'idle' | 'catching' | 'happy' | 'sad' | 'defeated';
@@ -28,7 +29,7 @@ export const CapybaraCharacter = ({ mood, className }: CapybaraCharacterProps) =
     <div className={cn("relative flex justify-center", className)}>
       <div className={cn("relative", getMoodClass())}>
         <img
-          src={capybaraImage}
+          src={mood === 'idle' || mood === 'defeated' ? capybaraImage : capybaraActive}
           alt="Капибара-стример"
           className="w-64 h-36 object-cover rounded-2xl shadow-glow"
         />

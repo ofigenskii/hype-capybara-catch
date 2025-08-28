@@ -8,6 +8,8 @@ interface FallingItem {
   y: number;
   speed: number;
   zone: number; // 0-3 для четырех углов
+  velocityX?: number; // Скорость по X
+  velocityY?: number; // Скорость по Y
 }
 
 interface FallingGameLogicProps {
@@ -53,12 +55,23 @@ export const FallingGameLogic = ({
     }
   }, [isPlaying]);
 
-  // Ловля предметов
+  // Ловля предметов в углах
   const catchItem = (zone: number) => {
     setItems(prevItems => {
-      const itemInZone = prevItems.find(item => 
-        item.zone === zone && item.y > window.innerHeight * 0.7
-      );
+      // Проверяем, достиг ли предмет целевой зоны (угла)
+      const itemInZone = prevItems.find(item => {
+        if (item.zone !== zone) return false;
+        
+        const targetX = zone % 2 === 0 ? 100 : window.innerWidth - 100;
+        const targetY = zone < 2 ? 100 : window.innerHeight - 100;
+        
+        // Проверяем близость к целевой зоне
+        const distanceToTarget = Math.sqrt(
+          Math.pow(item.x - targetX, 2) + Math.pow(item.y - targetY, 2)
+        );
+        
+        return distanceToTarget < 80; // Радиус ловли
+      });
 
       if (itemInZone) {
         const isPositive = POSITIVE_ITEMS.includes(itemInZone.type as any);
@@ -87,18 +100,36 @@ export const FallingGameLogic = ({
     });
   };
 
-  // Создание нового предмета
+  // Создание нового предмета, летящего из центра в угол
   const spawnItem = () => {
     const zone = Math.floor(Math.random() * 4);
     const type = ITEM_TYPES[Math.floor(Math.random() * ITEM_TYPES.length)];
     
+    // Стартуем из центра экрана
+    const centerX = window.innerWidth / 2;
+    const centerY = window.innerHeight / 2;
+    
+    // Определяем целевую зону
+    const targetX = zone % 2 === 0 ? 100 : window.innerWidth - 100;
+    const targetY = zone < 2 ? 100 : window.innerHeight - 100;
+    
+    // Вычисляем направление движения
+    const deltaX = targetX - centerX;
+    const deltaY = targetY - centerY;
+    const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+    
+    const speed = 2 + Math.random() * gameSpeed;
+    
     const newItem: FallingItem = {
       id: Date.now() + Math.random().toString(),
       type,
-      x: zone % 2 === 0 ? 20 : window.innerWidth - 100,
-      y: -50,
-      speed: 1 + Math.random() * gameSpeed,
-      zone
+      x: centerX,
+      y: centerY,
+      speed: speed,
+      zone,
+      // Добавляем направление движения
+      velocityX: (deltaX / distance) * speed,
+      velocityY: (deltaY / distance) * speed,
     };
 
     setItems(prev => [...prev, newItem]);
@@ -111,19 +142,27 @@ export const FallingGameLogic = ({
     const gameLoop = setInterval(() => {
       const now = Date.now();
       
-      // Спавн новых предметов
-      if (now - lastSpawnTime > 1000 / gameSpeed) {
+      // Спавн новых предметов (чаще для 3-минутной сессии)
+      if (now - lastSpawnTime > 800 / gameSpeed) {
         spawnItem();
         setLastSpawnTime(now);
       }
 
-      // Обновление позиций и удаление упавших
+      // Обновление позиций предметов
       setItems(prevItems => {
         return prevItems
-          .map(item => ({ ...item, y: item.y + item.speed * 2 }))
+          .map(item => ({
+            ...item,
+            x: item.x + (item.velocityX || 0),
+            y: item.y + (item.velocityY || 0)
+          }))
           .filter(item => {
-            if (item.y > window.innerHeight + 50) {
-              // Пропустили предмет
+            // Проверяем, вышел ли предмет за границы экрана
+            const outOfBounds = item.x < -50 || item.x > window.innerWidth + 50 || 
+                               item.y < -50 || item.y > window.innerHeight + 50;
+            
+            if (outOfBounds) {
+              // Пропустили позитивный предмет - теряем жизнь
               if (POSITIVE_ITEMS.includes(item.type as any)) {
                 const newLives = Math.max(0, lives - 1);
                 setLives(newLives);
