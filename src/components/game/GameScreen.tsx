@@ -1,28 +1,47 @@
 import { useState } from "react";
 import { GameUI } from "./GameUI";
 import { CapybaraCharacter } from "./CapybaraCharacter";
-import { GameItem } from "./GameItem";
+import { FallingGameLogic } from "./FallingGameLogic";
 import { Button } from "@/components/ui/button";
 
 interface GameScreenProps {
   onBackToMenu: () => void;
+  onGameOver: (score: number) => void;
 }
 
-export const GameScreen = ({ onBackToMenu }: GameScreenProps) => {
+export const GameScreen = ({ onBackToMenu, onGameOver }: GameScreenProps) => {
   const [gameState, setGameState] = useState({
-    score: 12450,
-    lives: 2,
-    hypeLevel: 75,
+    score: 0,
+    lives: 3,
+    hypeLevel: 0,
     isPaused: false,
-    isMuted: false
+    isMuted: false,
+    isPlaying: true
   });
 
   const handlePause = () => {
-    setGameState(prev => ({ ...prev, isPaused: !prev.isPaused }));
+    setGameState(prev => ({ ...prev, isPaused: !prev.isPaused, isPlaying: !prev.isPaused ? false : prev.isPlaying }));
   };
 
   const handleToggleSound = () => {
     setGameState(prev => ({ ...prev, isMuted: !prev.isMuted }));
+  };
+
+  const handleScoreChange = (score: number) => {
+    setGameState(prev => ({ ...prev, score }));
+  };
+
+  const handleLivesChange = (lives: number) => {
+    setGameState(prev => ({ ...prev, lives }));
+  };
+
+  const handleHypeChange = (hypeLevel: number) => {
+    setGameState(prev => ({ ...prev, hypeLevel }));
+  };
+
+  const handleGameOver = (finalScore: number) => {
+    setGameState(prev => ({ ...prev, isPlaying: false }));
+    onGameOver(finalScore);
   };
 
   return (
@@ -60,42 +79,48 @@ export const GameScreen = ({ onBackToMenu }: GameScreenProps) => {
           </div>
 
           {/* Зоны ловли - 4 угла */}
-          <div className="absolute inset-4 pointer-events-none">
+          <div className="absolute inset-4 pointer-events-auto">
             {[
-              { pos: 'top-0 left-0', label: 'Q', key: '1' },
-              { pos: 'top-0 right-0', label: 'W', key: '2' },
-              { pos: 'bottom-0 left-0', label: 'A', key: '3' },
-              { pos: 'bottom-0 right-0', label: 'S', key: '4' },
-            ].map((zone, index) => (
+              { pos: 'top-0 left-0', label: 'Q', key: '1', zone: 0 },
+              { pos: 'top-0 right-0', label: 'W', key: '2', zone: 1 },
+              { pos: 'bottom-0 left-0', label: 'A', key: '3', zone: 2 },
+              { pos: 'bottom-0 right-0', label: 'S', key: '4', zone: 3 },
+            ].map((zoneData, index) => (
               <div
                 key={index}
-                className={`absolute ${zone.pos} w-24 h-24 rounded-full border-4 border-dashed border-white/30 flex items-center justify-center bg-white/5`}
+                className={`absolute ${zoneData.pos} w-24 h-24 rounded-full border-4 border-dashed border-white/30 flex items-center justify-center bg-white/5 cursor-pointer hover:bg-white/10 transition-all`}
+                onClick={() => {
+                  // Мобильное управление - тап по зонам
+                  if (gameState.isPlaying && !gameState.isPaused) {
+                    const event = new KeyboardEvent('keydown', {
+                      key: ['q', 'w', 'a', 's'][zoneData.zone]
+                    });
+                    window.dispatchEvent(event);
+                  }
+                }}
               >
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-white/60">{zone.key}</div>
+                  <div className="text-2xl font-bold text-white/60">{zoneData.key}</div>
                   <div className="text-xs text-white/40">зона</div>
                 </div>
               </div>
             ))}
           </div>
 
-          {/* Falling Items Demo */}
-          <div className="absolute top-16 left-32">
-            <GameItem type="like" className="animate-bounce" />
-          </div>
-          <div className="absolute top-24 right-40">
-            <GameItem type="donate" className="animate-pulse" />
-          </div>
-          <div className="absolute top-32 left-1/2">
-            <GameItem type="dislike" className="animate-ping" />
-          </div>
-          <div className="absolute top-20 right-20">
-            <GameItem type="ban" className="animate-spin" />
-          </div>
+          {/* Game Logic */}
+          <FallingGameLogic
+            isPlaying={gameState.isPlaying && !gameState.isPaused}
+            onScoreChange={handleScoreChange}
+            onLivesChange={handleLivesChange}
+            onHypeChange={handleHypeChange}
+            onGameOver={handleGameOver}
+          />
           
           {/* Capybara Character */}
-          <div className="flex justify-center items-center min-h-[400px]">
-            <CapybaraCharacter mood="catching" />
+          <div className="flex justify-center items-center min-h-[400px] relative z-10">
+            <CapybaraCharacter 
+              mood={gameState.lives === 1 ? "sad" : gameState.hypeLevel >= 100 ? "happy" : "catching"} 
+            />
           </div>
 
           {/* Control Instructions */}
@@ -126,7 +151,10 @@ export const GameScreen = ({ onBackToMenu }: GameScreenProps) => {
               </h2>
               <div className="flex gap-4">
                 <Button
-                  onClick={handlePause}
+                  onClick={() => {
+                    handlePause();
+                    setGameState(prev => ({ ...prev, isPlaying: true }));
+                  }}
                   variant="gaming"
                 >
                   Продолжить

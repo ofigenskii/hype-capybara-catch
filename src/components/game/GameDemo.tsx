@@ -56,7 +56,7 @@ export const GameDemo = () => {
           />
         );
       case 'playing':
-        return <GameScreen onBackToMenu={handleBackToMenu} />;
+        return <GameScreen onBackToMenu={handleBackToMenu} onGameOver={handleGameOver} />;
       case 'gameOver':
         return (
           <GameOverScreen
