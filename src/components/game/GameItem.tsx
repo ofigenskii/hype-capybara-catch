@@ -13,7 +13,7 @@ const ITEM_CONFIGS = {
   verify: { emoji: '✅', bgClass: 'bg-emerald-500/20 border-2 border-emerald-400 shadow-[0_0_20px_rgb(16,185,129)]', positive: true },
   
   // Negative items - Эмоджи с красными эффектами
-  dislike: { emoji: '❌', bgClass: 'bg-red-600/20 border-2 border-red-400 shadow-[0_0_20px_rgb(220,38,38)]', positive: false },
+  dislike: { emoji: '👎', bgClass: 'bg-red-600/20 border-2 border-red-400 shadow-[0_0_20px_rgb(220,38,38)]', positive: false },
   hate: { emoji: '😠', bgClass: 'bg-orange-600/20 border-2 border-orange-400 shadow-[0_0_20px_rgb(234,88,12)]', positive: false },
   ban: { emoji: '🔨', bgClass: 'bg-purple-800/20 border-2 border-purple-400 shadow-[0_0_20px_rgb(107,33,168)]', positive: false },
 } as const;
