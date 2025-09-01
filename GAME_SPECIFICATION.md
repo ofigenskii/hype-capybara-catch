@@ -301,6 +301,323 @@ interface AchievementProgress {
 
 ---
 
+## 🎮 Техническое ТЗ для Phaser 3
+
+### Система анимаций в Phaser 3
+
+#### 🎭 Анимации персонажа (CapybaraCharacter)
+
+**idle - Спокойное состояние**
+```javascript
+// Создание tweens для легкого покачивания
+scene.tweens.add({
+    targets: capybaraSprite,
+    scaleY: 1.02,
+    duration: 2000,
+    yoyo: true,
+    repeat: -1,
+    ease: 'Sine.easeInOut'
+});
+
+// Добавить небольшое вращение
+scene.tweens.add({
+    targets: capybaraSprite,
+    rotation: 0.05,
+    duration: 3000,
+    yoyo: true,
+    repeat: -1,
+    ease: 'Sine.easeInOut'
+});
+```
+
+**catching - Активный отскок при ловле**
+```javascript
+// Быстрый скачок вверх и обратно
+scene.tweens.add({
+    targets: capybaraSprite,
+    y: capybaraSprite.y - 20,
+    scaleX: 1.1,
+    scaleY: 0.9,
+    duration: 150,
+    ease: 'Back.easeOut',
+    yoyo: true,
+    onComplete: () => {
+        // Возврат к idle анимации
+        playIdleAnimation();
+    }
+});
+```
+
+**happy - Пульсирующее свечение**
+```javascript
+// Создание эффекта свечения через PostFX
+const glowFX = capybaraSprite.postFX.addGlow(0x00ff00, 0, 0, false, 0.1, 32);
+
+scene.tweens.add({
+    targets: glowFX,
+    outerStrength: 4,
+    duration: 500,
+    yoyo: true,
+    repeat: 2,
+    ease: 'Sine.easeInOut'
+});
+
+// Дополнительное масштабирование
+scene.tweens.add({
+    targets: capybaraSprite,
+    scaleX: 1.15,
+    scaleY: 1.15,
+    duration: 300,
+    yoyo: true,
+    repeat: 1,
+    ease: 'Back.easeOut'
+});
+```
+
+**sad - Дрожание при уроне**
+```javascript
+// Эффект тряски (shake)
+scene.tweens.add({
+    targets: capybaraSprite,
+    x: capybaraSprite.x + Phaser.Math.Between(-5, 5),
+    duration: 50,
+    repeat: 8,
+    yoyo: true,
+    onUpdate: () => {
+        capybaraSprite.x += Phaser.Math.Between(-2, 2);
+    }
+});
+
+// Изменение тинта на красный
+capybaraSprite.setTint(0xff6b6b);
+scene.time.delayedCall(400, () => {
+    capybaraSprite.clearTint();
+});
+```
+
+**defeated - Падение при поражении**
+```javascript
+// Падение и затухание
+scene.tweens.add({
+    targets: capybaraSprite,
+    y: capybaraSprite.y + 100,
+    alpha: 0,
+    rotation: -0.5,
+    scaleX: 0.8,
+    scaleY: 0.8,
+    duration: 800,
+    ease: 'Cubic.easeIn'
+});
+```
+
+#### 🎯 Анимации игровых предметов (GameItem)
+
+**scale-out - Исчезновение при ловле**
+```javascript
+// Уменьшение и исчезновение
+scene.tweens.add({
+    targets: gameItem,
+    scaleX: 0,
+    scaleY: 0,
+    alpha: 0,
+    rotation: Math.PI * 2,
+    duration: 300,
+    ease: 'Back.easeIn',
+    onComplete: () => {
+        gameItem.destroy();
+    }
+});
+```
+
+**fade-out - Тускнеение пропущенного предмета**
+```javascript
+// Постепенное исчезновение
+scene.tweens.add({
+    targets: gameItem,
+    alpha: 0,
+    scaleX: 0.7,
+    scaleY: 0.7,
+    duration: 500,
+    ease: 'Sine.easeOut',
+    onComplete: () => {
+        gameItem.destroy();
+    }
+});
+```
+
+**Появление предмета (spawn animation)**
+```javascript
+// Материализация из центра
+gameItem.setScale(0);
+gameItem.setAlpha(0);
+
+scene.tweens.add({
+    targets: gameItem,
+    scaleX: 1,
+    scaleY: 1,
+    alpha: 1,
+    duration: 200,
+    ease: 'Back.easeOut'
+});
+```
+
+#### ✨ Эффекты частиц и UI
+
+**Успешная ловля - взрыв частиц**
+```javascript
+// Создание эмиттера частиц
+const particles = scene.add.particles(x, y, 'sparkle', {
+    speed: { min: 50, max: 150 },
+    lifespan: { min: 200, max: 400 },
+    quantity: 8,
+    scale: { start: 0.3, end: 0 },
+    blendMode: 'ADD',
+    emitZone: { type: 'edge', source: new Phaser.Geom.Circle(0, 0, 20), quantity: 8 }
+});
+
+// Автоуничтожение через 500мс
+scene.time.delayedCall(500, () => {
+    particles.destroy();
+});
+```
+
+**Текст очков (+10 ✨)**
+```javascript
+const scoreText = scene.add.text(x, y, '+10 ✨', {
+    fontSize: '24px',
+    fill: '#00ff00',
+    stroke: '#000000',
+    strokeThickness: 3
+});
+
+scene.tweens.add({
+    targets: scoreText,
+    y: scoreText.y - 50,
+    alpha: 0,
+    scaleX: 1.5,
+    scaleY: 1.5,
+    duration: 800,
+    ease: 'Cubic.easeOut',
+    onComplete: () => {
+        scoreText.destroy();
+    }
+});
+```
+
+**Хайп-режим активация**
+```javascript
+// Экранный флеш-эффект
+const flashRect = scene.add.rectangle(0, 0, scene.scale.width, scene.scale.height, 0xffff00, 0.3);
+flashRect.setOrigin(0, 0);
+
+scene.tweens.add({
+    targets: flashRect,
+    alpha: 0,
+    duration: 200,
+    onComplete: () => {
+        flashRect.destroy();
+    }
+});
+
+// Радужное мерцание UI элементов
+const hypeModeColors = [0xff0000, 0x00ff00, 0x0000ff, 0xffff00, 0xff00ff];
+let colorIndex = 0;
+
+const colorTween = scene.tweens.addCounter({
+    from: 0,
+    to: 1,
+    duration: 100,
+    repeat: 29, // 3 секунды
+    onRepeat: () => {
+        uiElements.forEach(element => {
+            element.setTint(hypeModeColors[colorIndex % hypeModeColors.length]);
+        });
+        colorIndex++;
+    },
+    onComplete: () => {
+        uiElements.forEach(element => {
+            element.clearTint();
+        });
+    }
+});
+```
+
+#### 📱 Адаптивные эффекты для мобильных устройств
+
+**Вибрация при событиях**
+```javascript
+// Проверка поддержки вибрации
+if (navigator.vibrate) {
+    // Успешная ловля
+    navigator.vibrate(50);
+    
+    // Получение урона
+    navigator.vibrate([100, 50, 100]);
+    
+    // Хайп-режим
+    navigator.vibrate([50, 50, 50, 50, 200]);
+}
+```
+
+**Screen shake для импакта**
+```javascript
+// Тряска камеры
+scene.cameras.main.shake(200, 0.01); // длительность 200мс, интенсивность 0.01
+```
+
+### 🎨 Настройки производительности
+
+```javascript
+// Оптимизация для мобильных устройств
+const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+const animationConfig = {
+    particleCount: isMobile ? 4 : 8,
+    maxTweens: isMobile ? 20 : 50,
+    enablePostFX: !isMobile, // Отключить сложные эффекты на мобильных
+    textureResolution: isMobile ? 0.5 : 1.0
+};
+```
+
+### 🔧 Система управления анимациями
+
+```javascript
+class AnimationManager {
+    constructor(scene) {
+        this.scene = scene;
+        this.activeTweens = new Set();
+    }
+    
+    playAnimation(target, animationType, options = {}) {
+        // Остановить существующие анимации
+        this.stopAnimations(target);
+        
+        const tween = this.createAnimation(target, animationType, options);
+        this.activeTweens.add(tween);
+        
+        tween.on('complete', () => {
+            this.activeTweens.delete(tween);
+        });
+        
+        return tween;
+    }
+    
+    stopAnimations(target) {
+        this.scene.tweens.killTweensOf(target);
+    }
+    
+    pauseAllAnimations() {
+        this.scene.tweens.pauseAll();
+    }
+    
+    resumeAllAnimations() {
+        this.scene.tweens.resumeAll();
+    }
+}
+```
+
+---
+
 ## 🔧 Техническая документация
 
 ### Состояния игры
