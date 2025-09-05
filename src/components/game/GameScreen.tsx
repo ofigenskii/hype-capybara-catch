@@ -78,17 +78,17 @@ export const GameScreen = ({ onBackToMenu, onGameOver }: GameScreenProps) => {
             </div>
           </div>
 
-          {/* Зоны ловли - 4 угла */}
+          {/* Зоны ловли - Лапки капибары */}
           <div className="absolute inset-4 pointer-events-auto">
             {[
-              { pos: 'top-0 left-0', label: 'Q', key: '1', zone: 0 },
-              { pos: 'top-0 right-0', label: 'W', key: '2', zone: 1 },
-              { pos: 'bottom-0 left-0', label: 'A', key: '3', zone: 2 },
-              { pos: 'bottom-0 right-0', label: 'S', key: '4', zone: 3 },
+              { pos: 'top-0 left-0', label: 'Q', key: '1', zone: 0, rotation: 'rotate-12' },
+              { pos: 'top-0 right-0', label: 'W', key: '2', zone: 1, rotation: '-rotate-12' },
+              { pos: 'bottom-0 left-0', label: 'A', key: '3', zone: 2, rotation: 'rotate-12' },
+              { pos: 'bottom-0 right-0', label: 'S', key: '4', zone: 3, rotation: '-rotate-12' },
             ].map((zoneData, index) => (
               <div
                 key={index}
-                className={`absolute ${zoneData.pos} w-24 h-24 rounded-full border-4 border-dashed border-white/30 flex items-center justify-center bg-white/5 cursor-pointer hover:bg-white/10 transition-all`}
+                className={`absolute ${zoneData.pos} ${zoneData.rotation} group cursor-pointer transition-all duration-300 hover:scale-110 hover:-rotate-2 active:scale-95`}
                 onClick={() => {
                   // Мобильное управление - тап по зонам
                   if (gameState.isPlaying && !gameState.isPaused) {
@@ -99,9 +99,62 @@ export const GameScreen = ({ onBackToMenu, onGameOver }: GameScreenProps) => {
                   }
                 }}
               >
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-white/60">{zoneData.key}</div>
-                  <div className="text-xs text-white/40">зона</div>
+                {/* Лапка капибары */}
+                <div className="relative">
+                  {/* Основание лапки */}
+                  <div className="w-20 h-24 bg-gradient-to-br from-amber-200 to-amber-400 rounded-full shadow-lg border-2 border-amber-600/30 relative overflow-hidden">
+                    {/* Градиентное свечение */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-amber-300/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    
+                    {/* Пальчики */}
+                    <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 flex gap-1">
+                      {[...Array(4)].map((_, i) => (
+                        <div
+                          key={i}
+                          className="w-3 h-6 bg-gradient-to-br from-amber-200 to-amber-400 rounded-full border border-amber-600/20 transform group-hover:translate-y-1 transition-transform duration-300"
+                          style={{ animationDelay: `${i * 0.1}s` }}
+                        ></div>
+                      ))}
+                    </div>
+                    
+                    {/* Подушечка лапки */}
+                    <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 w-12 h-8 bg-pink-300/60 rounded-full border border-pink-400/30"></div>
+                    
+                    {/* Клавиша управления */}
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="bg-white/90 backdrop-blur-sm rounded-full w-8 h-8 flex items-center justify-center border-2 border-white shadow-lg group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300">
+                        <span className="text-sm font-bold">{zoneData.key}</span>
+                      </div>
+                    </div>
+                    
+                    {/* Пульсирующее кольцо при готовности */}
+                    <div className="absolute inset-0 rounded-full border-2 border-primary/50 scale-110 opacity-0 group-hover:opacity-100 animate-pulse"></div>
+                  </div>
+                  
+                  {/* Подпись зоны */}
+                  <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 text-center">
+                    <div className="text-xs text-white/60 font-medium bg-black/30 px-2 py-1 rounded backdrop-blur-sm">
+                      зона {zoneData.key}
+                    </div>
+                  </div>
+                  
+                  {/* Эффект частиц при активации */}
+                  <div className="absolute inset-0 pointer-events-none">
+                    <div className="absolute inset-0 opacity-0 group-active:opacity-100 transition-opacity duration-150">
+                      {[...Array(6)].map((_, i) => (
+                        <div
+                          key={i}
+                          className="absolute w-2 h-2 bg-yellow-400 rounded-full animate-bounce"
+                          style={{
+                            left: `${20 + Math.random() * 60}%`,
+                            top: `${20 + Math.random() * 60}%`,
+                            animationDelay: `${i * 0.1}s`,
+                            animationDuration: '0.6s'
+                          }}
+                        ></div>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               </div>
             ))}

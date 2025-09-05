@@ -230,6 +230,29 @@ All colors MUST be HSL.
     animation: scale-up 0.2s ease-out;
   }
 
+  .animate-glow-pulse {
+    animation: glow-pulse 2s ease-in-out infinite;
+  }
+
+  .capybara-paw {
+    background: linear-gradient(135deg, #fbbf24, #f59e0b);
+    box-shadow: 
+      0 4px 12px rgba(245, 158, 11, 0.3),
+      inset 0 1px 3px rgba(255, 255, 255, 0.2);
+  }
+
+  .capybara-paw:hover {
+    transform: scale(1.1) rotate(-2deg);
+    box-shadow: 
+      0 6px 20px rgba(245, 158, 11, 0.4),
+      0 0 30px rgba(245, 158, 11, 0.2),
+      inset 0 1px 3px rgba(255, 255, 255, 0.3);
+  }
+
+  .paw-sparkle {
+    animation: sparkle 1.5s ease-in-out infinite;
+  }
+
   .animate-slide-in-bottom {
     animation: slide-in-bottom 0.5s ease-out;
   }
@@ -276,4 +299,15 @@ All colors MUST be HSL.
 @keyframes slide-in-bottom {
   0% { transform: translateY(0px); }
   100% { transform: translateY(50px); opacity: 0.5; }
+}
+
+@keyframes sparkle {
+  0%, 100% { 
+    opacity: 0; 
+    transform: scale(0.8) rotate(0deg); 
+  }
+  50% { 
+    opacity: 1; 
+    transform: scale(1.2) rotate(180deg); 
+  }
 }
